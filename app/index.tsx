@@ -1,6 +1,18 @@
 import * as SQLite from "expo-sqlite";
+import { View, Text } from "react-native";
 
-const db = await SQLite.openDatabaseAsync('programas.db');
+const db = SQLite.openDatabaseSync('programas.db');
+
+
+const IndexScreen = () => {
+  return (
+    <View>
+      <Text>Hola</Text>
+    </View>
+  );
+
+  
+  };
 
 
 
@@ -84,8 +96,8 @@ const deleteEstudiante = (cod: string) => {
 
 //BUSCAR ESTUDIANTE POR CODIGO
 
-const searchEstudiante = async (cod: string) => {
-  const result = await db.getFirstAsync(
+const searchEstudiante = (cod: string) => {
+  const result = db.getFirstSync(
     "SELECT * FROM estudiantes WHERE cod = ?",
     [cod]
   );
@@ -95,10 +107,11 @@ const searchEstudiante = async (cod: string) => {
 
 
 
-export { crearTabla, crearProgramas, crearEstudiante, updateProgramas, deleteProgramas, updateEstudiante, deleteEstudiante };
+export { crearTabla, crearProgramas, crearEstudiante, 
+  updateProgramas, deleteProgramas, updateEstudiante, deleteEstudiante, searchEstudiante};
 
 
-
+export default IndexScreen;
 
 
 
