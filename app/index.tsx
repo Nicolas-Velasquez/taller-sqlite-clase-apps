@@ -1,17 +1,17 @@
 import * as SQLite from "expo-sqlite";
 
-const db = SQLite.openDatabaseAsync('programas.db');
+const db = await SQLite.openDatabaseAsync('programas.db');
 
 
 
 const crearTabla = () => {
-    db.exeSync(`
+    db.execSync(`
     CREATE TABLE IF NOT EXISTS programas (
     cod TEXT PRIMARY KEY,
     nombre TEXT
     );
 
-    CREATE TABLE IF NOT EXIST estudiantes (
+    CREATE TABLE IF NOT EXISTS estudiantes (
     cod TEXT PRIMARY KEY,
     nombre TEXT,
     email TEXT,
@@ -40,6 +40,7 @@ const crearEstudiante = (cod: string, nombre: string, email: string, programa_co
   );
 };
 
+//INSERTAR ESTUDIANTES
 
 
 //UPDATE PROGRAMAS
@@ -61,7 +62,7 @@ const deleteProgramas = (cod: string) => {
 //UPDATE ESTUDIANTES
 
 const updateEstudiante = (
-  codigo: string,
+  cod: string,
   nombre: string,
   email: string
 ) => {
@@ -72,7 +73,7 @@ const updateEstudiante = (
 };
 
 
-//DELETE
+//DELETE ESTUDIANTES
 
 const deleteEstudiante = (cod: string) => {
   db.runSync(
@@ -81,7 +82,20 @@ const deleteEstudiante = (cod: string) => {
   );
 };
 
+//BUSCAR ESTUDIANTE POR CODIGO
 
+const searchEstudiante = async (cod: string) => {
+  const result = await db.getFirstAsync(
+    "SELECT * FROM estudiantes WHERE cod = ?",
+    [cod]
+  );
+
+  return result;
+};
+
+
+
+export { crearTabla, crearProgramas, crearEstudiante, updateProgramas, deleteProgramas, updateEstudiante, deleteEstudiante };
 
 
 
