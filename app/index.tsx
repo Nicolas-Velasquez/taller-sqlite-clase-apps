@@ -1,6 +1,6 @@
 import * as SQLite from "expo-sqlite";
 import React, { useEffect, useState } from "react";
-import { View, Text, TextInput, Button, StyleSheet, ScrollView } from "react-native";
+import { View, Text, TextInput, Button, StyleSheet, ScrollView, Alert } from "react-native";
 
 const db = SQLite.openDatabaseSync("programas.db");
 
@@ -46,6 +46,7 @@ const IndexScreen = () => {
 
     setCodPrograma("");
     setNombrePrograma("");
+    verProgramas();
   };
 
   const crearEstudiante = () => {
@@ -58,6 +59,7 @@ const IndexScreen = () => {
     setNombreEstudiante("");
     setEmail("");
     setProgramaCod("");
+    verEstudiantes();
   };
 
   const verProgramas = () => {
@@ -68,6 +70,36 @@ const IndexScreen = () => {
   const verEstudiantes = () => {
     const result = db.getAllSync("SELECT * FROM estudiantes");
     setEstudiantes(result);
+  };
+
+  // BORRAR PROGRAMA
+  const borrarPrograma = (cod:string) => {
+
+    const estudiantesRelacionados = db.getAllSync(
+      "SELECT * FROM estudiantes WHERE Programa_cod = ?",
+      [cod]
+    );
+
+    if(estudiantesRelacionados.length > 0){
+      Alert.alert("Error","No se puede borrar, hay estudiantes registrados");
+      return;
+    }
+
+    db.runSync("DELETE FROM programas WHERE cod = ?", [cod]);
+
+    Alert.alert("Programa eliminado");
+
+    verProgramas();
+  };
+
+  // BORRAR ESTUDIANTE
+  const borrarEstudiante = (cod:string) => {
+
+    db.runSync("DELETE FROM estudiantes WHERE cod = ?", [cod]);
+
+    Alert.alert("Estudiante eliminado");
+
+    verEstudiantes();
   };
 
   return (
@@ -95,9 +127,13 @@ const IndexScreen = () => {
       <Text style={styles.titulo}>Programas guardados</Text>
 
       {programas.map((p, index) => (
-        <Text key={index}>
-          {p.cod} - {p.nombre}
-        </Text>
+        <View key={index} style={styles.item}>
+          <Text>{p.cod} - {p.nombre}</Text>
+          <Button
+            title="Eliminar"
+            onPress={() => borrarPrograma(p.cod)}
+          />
+        </View>
       ))}
 
       <Text style={styles.titulo}>Agregar Estudiante</Text>
@@ -136,9 +172,15 @@ const IndexScreen = () => {
       <Text style={styles.titulo}>Estudiantes guardados</Text>
 
       {estudiantes.map((e, index) => (
-        <Text key={index}>
-          {e.cod} - {e.nombre} - {e.email} - {e.Programa_cod}
-        </Text>
+        <View key={index} style={styles.item}>
+          <Text>
+            {e.cod} - {e.nombre} - {e.email} - {e.Programa_cod}
+          </Text>
+          <Button
+            title="Eliminar"
+            onPress={() => borrarEstudiante(e.cod)}
+          />
+        </View>
       ))}
 
     </ScrollView>
@@ -148,22 +190,29 @@ const IndexScreen = () => {
 export default IndexScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-    marginTop: 50
+  container:{
+    padding:20,
+    marginTop:50
   },
 
-  titulo: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginTop: 20
+  titulo:{
+    fontSize:20,
+    fontWeight:"bold",
+    marginTop:20
   },
 
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    padding: 10,
-    marginTop: 10,
-    marginBottom: 10
+  input:{
+    borderWidth:1,
+    borderColor:"#ccc",
+    padding:10,
+    marginTop:10,
+    marginBottom:10
+  },
+
+  item:{
+    marginTop:10,
+    padding:10,
+    borderWidth:1,
+    borderColor:"#ddd"
   }
 });
